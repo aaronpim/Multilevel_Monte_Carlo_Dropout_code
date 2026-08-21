@@ -57,9 +57,9 @@ def estimator_from_evals(evals = None, model_seed = None, fidelity_ladder = [16,
             store_vals(Y_store, V_store, Y0, dY, V0, dV)
             offset += max_fid
     mean_estimate = expectation_of_estimator(Y_store)
-    mean_var = variance_of_estimator(Y_store, num_levels)
+    mean_var = variance_of_estimator(Y_store, M)
     var_estimate = expectation_of_estimator(V_store)
-    var_var = variance_of_estimator(V_store, num_levels)
+    var_var = variance_of_estimator(V_store, M)
     return mean_estimate, mean_var, var_estimate, var_var, Y_store, V_store
 
 def all_M(cost = 2048, fidelity_ladder = [16, 32, 64]):
@@ -111,12 +111,15 @@ def triangle_plot(M0, M1, data, file_name):
     plt.figure(figsize=(6,5))
     norm = color.TwoSlopeNorm(vmin=np.min(data), vcenter=np.median(data), vmax=np.max(data))
     plt.tripcolor(M0, M1, data, shading="gouraud", cmap="viridis", norm=norm)
-    cbar = plt.colorbar(label="sample mean variance")
+    cbar = plt.colorbar()
     qticks = np.quantile(data, [0, 0.5, 1.0])
     cbar.set_ticks(qticks)
     plt.scatter(M0, M1, c="k", s=1)
     imin = np.argmin(data)
-    plt.scatter(M0[imin], M1[imin], marker="x", s=5, c="red", edgecolor="red")
+    plt.scatter(M0[imin], M1[imin], marker="x", s=5, c="red")
+    m0_theo = 2048/(16*(1+np.sqrt(2))),
+    m1_theo = 2048/(16*np.sqrt(2)*(1+np.sqrt(2)))
+    plt.scatter(m0_theo, m1_theo, marker="x", s=5, c="orange")
     plt.xlabel(r"$M_0$")
     plt.ylabel(r"$M_1$")
     plt.tight_layout()
@@ -147,6 +150,6 @@ def plot_results(file_name = None):
     print('Minima:', M0[imin], M1[imin], plotting_outputs[imin,2].numpy())
 
 if __name__ == "__main__":
-    # eval_models()
-    # main_experiment()
+    eval_models()
+    main_experiment()
     plot_results()
